@@ -1,6 +1,16 @@
 #include <Arduino.h>
 #include <QTRSensors.h>
 
+// Define LED_BUILTIN if not defined (for some ESP32 boards)
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 2
+#endif
+
+// Function declarations
+void PID_control();
+void rightMotor(int motorSpeed);
+void leftMotor(int motorSpeed);
+
 // PID-parametre
 float Kp = 0.22;
 float Ki = 0.015;
@@ -45,7 +55,7 @@ void setup()
 
   Serial.begin(9600);
   qtr.setTypeRC();
-  qtr.setSensorPins((const uint8_t[]){A0, A1, A2, A3, A4, A5}, SensorCount);
+  qtr.setSensorPins((const uint8_t[]){36, 39, 34, 35, 32, 33}, SensorCount);  // ESP32 GPIO pins for sensors
   qtr.setEmitterPin(2);
 
   delay(100);
