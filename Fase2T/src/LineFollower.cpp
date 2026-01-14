@@ -34,7 +34,51 @@ void LineFollower::init() {
 }
 
 void LineFollower::calibrate() {
-    sensor.calibrate();
+    Serial.println("Starting auto calibration...");
+
+    // Ensure motors are initialized
+    rightMotor.init();
+    leftMotor.init();
+
+    // Brief delay before movement
+    delay(200);
+
+    // Sweep over the line while calibrating sensors
+    // Alternate turning directions every N iterations to cover both sides
+    const uint8_t turnSpeed = 120; // gentle speed for calibration
+    const uint16_t iterations = 400;
+
+    for (uint16_t i = 0; i < iterations; i++) {
+        // Alternate direction every 20 iterations
+        if ((i / 20) % 2 == 0) {
+            // Turn left
+            rightMotor.setSpeed(turnSpeed);
+            leftMotor.setSpeed(-turnSpeed);
+        } else {
+            // Turn right
+            rightMotor.setSpeed(-turnSpeed);
+            leftMotor.setSpeed(turnSpeed);
+        }
+
+        // Perform a calibration step
+        sensor.calibrate();
+
+        // Small delay to allow movement
+        delay(10);
+
+        // Sparse progress indicator
+        if ((i & 31) == 0) Serial.print('.');
+    }
+
+    // Stop motors after calibration
+    stop();
+    Serial.println();
+    Serial.println("Auto calibration complete!");
+
+    // Print calibration stats
+    sensor.printCalibration();
+
+    delay(500);
 }
 
 void LineFollower::update() {
